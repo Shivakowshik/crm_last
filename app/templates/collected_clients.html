@@ -1,0 +1,249 @@
+{% extends 'agent_nav.html' %} {% load static %} {% block content %}{% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            box-sizing: border-box;
+        }
+        
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            background: #003366;
+            border-radius: 10px;
+            padding: 15px;
+            width: 350px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .avatar {
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            border: 3px solid #ffffff;
+        }
+        
+        .card-details {
+            flex: 1;
+        }
+        
+        .card-details h2 {
+            font-size: 25px;
+            color: #ffffff;
+            margin: 0;
+        }
+        
+        .card-details p {
+            font-size: 0.9em;
+            color: #ffffff;
+            margin: 5px 0;
+        }
+        
+        .card-details .insurance-info {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #ffffff;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .action-buttons a,
+        .action-buttons button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            background-color: #004289;
+            cursor: pointer;
+        }
+        
+        .btn-primary,
+        .btn-danger,
+        .btn-success {
+            background: #004289;
+            color: #fff;
+        }
+        
+        .btn-primary:hover,
+        .btn-danger:hover,
+        .btn-success:hover {
+            background: #0170e7;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                flex-wrap: wrap;
+                height: auto;
+            }
+            .card img {
+                margin: 0 auto;
+            }
+            .card-details {
+                text-align: center;
+            }
+        }
+        
+        #location-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 420px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 style="color: #002853; text-align: center; margin-top: 1%; margin-bottom: 2%;"><strong>Clients Details</strong></h3>
+
+    <div class="card-container">
+        {% if clients %} {% for client in clients %}
+        <div class="card">
+            {% if client.photo %}
+            <img src="{{ client.photo.url }}" alt="Avatar" class="avatar"> {% else %}
+            <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="Avatar" class="avatar"> {% endif %}
+            <div class="card-details">
+                <h2>{{ client.first_name }} {{ client.last_name }}</h2>
+                <p>Email: <strong>{{ client.email }}</strong></p>
+                <p>Phone: <strong>{{ client.phone }}</strong></p>
+                <p>Address: <strong class="agent-location">{{ client.address }}</strong></p>
+                <div class="insurance-info">
+                    <p>Insurance Type: <strong>{{ client.insurance_type }}</strong></p>
+                    <p>Policy Number: <strong>{{ client.policy_number }}</strong></p>
+                    <div class="client-details">
+                        <p>Date Added: <strong>{{ client.join_date }}</strong></p>
+                        <p>Agent: <strong>{{ client.agent.full_name }}</strong></p>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="{% url 'delete_client' client.id %}" class="btn-primary">
+                        <img src="{% static 'images/delete.png' %}" alt="Delete" style="width: 20px; height: 20px;">
+                    </a>
+                    <a href="{% url 'edit_client' client.id %}" class="btn-primary">
+                        <img src="{% static 'images/edit.jpg' %}" alt="Edit" style="width: 20px; height: 20px;">
+                    </a>
+
+                    <button class="btn-success" onclick="showLocation(this)">
+                            <img src="{% static 'images/loc.png' %}" alt="Track Location" style="width: 20px; height: 20px;">
+                        </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %} {% else %}
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; flex-direction: column;">
+            <img src="https://img.freepik.com/premium-vector/nothing-here-flat-illustration_418302-77.jpg" alt="" style="max-width: 80%; height: auto;">
+            <p style="color: #003366; font-size: 20px; font-weight: bold;">No Details Found</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="location-modal">
+        <div style="background: #003366; padding: 15px; color: #ffffff; text-align: center;">
+            <h3 style="margin: 0;">Agent Location</h3>
+        </div>
+        <div style="padding: 20px; text-align: center;">
+            <p id="modal-content" style="color: #001555;">Loading location...</p>
+            <a id="map-link" href="#" target="_blank" style="background: #00458f; color: #fff; padding: 12px 20px;">View on Google Maps</a>
+            <button onclick="closeModal()" style="background: #00458f; color: #fff; padding: 10px 20px;">Close</button>
+        </div>
+    </div>
+
+    <div id="overlay"></div>
+
+    <script>
+        function showLocation(button) {
+            const card = button.closest('.card');
+            const name = card.querySelector('h2').textContent;
+            const location = card.querySelector('.agent-location').textContent;
+
+            document.getElementById("modal-content").textContent = `${name} is located in ${location}.`;
+            document.getElementById("map-link").href = `https://www.google.com/maps?q=${encodeURIComponent(location)}`;
+
+            document.getElementById("location-modal").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("location-modal").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        }
+    </script>
+</body>
+
+</html>
+
+{% endblock %}

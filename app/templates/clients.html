@@ -1,0 +1,155 @@
+{% extends 'admin_nav.html' %} {% load static %} {% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+        }
+        
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .card {
+            background: #003366;
+            border-radius: 10px;
+            padding: 15px;
+            width: 350px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            color: #ffffff;
+        }
+        
+        .avatar {
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .card-details {
+            flex: 1;
+        }
+        
+        .card-details h2 {
+            font-size: 22px;
+            margin: 0;
+        }
+        
+        .card-details p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .pagination a {
+            padding: 10px 15px;
+            margin: 0 5px;
+            text-decoration: none;
+            color: #003366;
+            background: #f1f1f1;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .pagination a:hover {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .pagination .current {
+            padding: 10px 15px;
+            margin: 0 5px;
+            background: #003366;
+            color: white;
+            border-radius: 5px;
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #003366;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            background: #004289;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #0170e7;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 style="text-align: center; margin-top: 20px; color: #003366;">Clients for Agent: {{ agent.full_name }}</h3>
+
+    <div class="card-container">
+        {% if clients %} {% for client in clients %}
+        <div class="card">
+            {% if client.photo %}
+            <img src="{{ client.photo.url }}" alt="Avatar" class="avatar"> {% else %}
+            <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="Avatar" class="avatar"> {% endif %}
+            <div class="card-details">
+                <h2>{{ client.first_name }} {{ client.last_name }}</h2>
+                <p>Email: <strong>{{ client.email }}</strong></p>
+                <p>Phone: <strong>{{ client.phone }}</strong></p>
+                <p>Address: <strong class="agent-location">{{ client.address }}</strong></p>
+                <hr>
+                <div class="insurance-info">
+                    <p>Insurance Type: <strong>{{ client.insurance_type }}</strong></p>
+                    <p>Policy Number: <strong>{{ client.policy_number }}</strong></p>
+                    <div class="client-details">
+                        <p>Date Added: <strong>{{ client.join_date }}</strong></p>
+                        <p>Agent: <strong>{{ client.agent.full_name }}</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %} {% else %}
+        <div class="no-data">
+            <p>No clients found for this agent.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if clients.has_other_pages %}
+    <div class="pagination">
+        {% if clients.has_previous %}
+        <a href="?page=1">&laquo; First</a>
+        <a href="?page={{ clients.previous_page_number }}">&lsaquo; Previous</a> {% endif %} {% for page_num in clients.paginator.page_range %} {% if page_num == clients.number %}
+        <span class="current">{{ page_num }}</span> {% else %}
+        <a href="?page={{ page_num }}">{{ page_num }}</a> {% endif %} {% endfor %} {% if clients.has_next %}
+        <a href="?page={{ clients.next_page_number }}">Next &rsaquo;</a>
+        <a href="?page={{ clients.paginator.num_pages }}">Last &raquo;</a> {% endif %}
+    </div>
+    {% endif %}
+</body>
+
+</html>
+{% endblock %}

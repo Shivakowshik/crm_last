@@ -1,0 +1,286 @@
+{% extends 'admin_nav.html' %} {% block content %} {% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+
+<!-- Edit Agent Form -->
+<div class="container mt-5">
+    <h2 class="text-center" style="font-size: 2.5rem; font-weight: bold; color: #002f56;">Edit Agent</h2>
+    <form id="agentForm" method="POST" enctype="multipart/form-data" style="margin-top: 2%; background-color: #3680ca; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Agent Name -->
+            <div class="col-md-6 mb-3">
+                <label for="full_name" class="form-label" style="font-weight: bold; color: #fff;">Full Name</label>
+                <input type="text" class="form-control" id="full_name" name="full_name" value="{{ agent.full_name }}" required maxlength="100">
+                <small id="full_name_error" class="text-danger"></small>
+            </div>
+
+            <!-- Email -->
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label" style="font-weight: bold; color: #fff;">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ agent.email }}" required>
+                <small id="email_error" class="text-danger"></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Phone Number -->
+            <div class="col-md-6 mb-3">
+                <label for="phone_number" class="form-label" style="font-weight: bold; color: #fff;">Phone Number (e.g., 9876543210)</label>
+                <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ agent.phone_number }}" required maxlength="10" pattern="^[0-9]{10}$">
+                <small id="phone_number_error" class="text-danger"></small>
+            </div>
+
+            <!-- PAN Card -->
+            <div class="col-md-6 mb-3">
+                <label for="pan_card" class="form-label" style="font-weight: bold; color: #fff;">PAN Card Number (e.g., ABCDE1234F)</label>
+                <input type="text" class="form-control" id="pan_card" name="pan_card" value="{{ agent.pan_card }}" required maxlength="10" pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$">
+                <small id="pan_card_error" class="text-danger"></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Aadhaar Card -->
+            <div class="col-md-6 mb-3">
+                <label for="aadhaar_card" class="form-label" style="font-weight: bold; color: #fff;">Aadhaar Card Number (e.g., 123456789012)</label>
+                <input type="text" class="form-control" id="aadhaar_card" name="aadhaar_card" value="{{ agent.aadhaar_card }}" required maxlength="12" pattern="^[0-9]{12}$">
+                <small id="aadhaar_card_error" class="text-danger"></small>
+            </div>
+
+            <!-- Address -->
+            <div class="col-md-6 mb-3">
+                <label for="address" class="form-label" style="font-weight: bold; color: #fff;">Address (e.g., 123 Street Name, City, PIN)</label>
+                <textarea class="form-control" id="address" name="address" rows="4" required maxlength="250">{{ agent.address }}</textarea>
+                <small id="address_error" class="text-danger"></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Experience -->
+            <div class="col-md-6 mb-3">
+                <label for="experience" class="form-label" style="font-weight: bold; color: #fff;">Experience</label>
+                <select class="form-control" id="experience" name="experience" required>
+                    <option value="" disabled>Select experience</option>
+                    <option value="0-1 years" {% if agent.experience == '0-1 years' %}selected{% endif %}>0-1 years</option>
+                    <option value="1-3 years" {% if agent.experience == '1-3 years' %}selected{% endif %}>1-3 years</option>
+                    <option value="3-5 years" {% if agent.experience == '3-5 years' %}selected{% endif %}>3-5 years</option>
+                    <option value="5+ years" {% if agent.experience == '5+ years' %}selected{% endif %}>5+ years</option>
+                </select>
+                <small id="experience_error" class="text-danger"></small>
+            </div>
+
+            <!-- Certifications -->
+            <div class="col-md-6 mb-3">
+                <label for="certifications" class="form-label" style="font-weight: bold; color: #fff;">Certifications</label>
+                <select class="form-control" id="certifications" name="certifications">
+                    <option value="" disabled>Select certification</option>
+                    <option value="Insurance Sales" {% if agent.certifications == 'Insurance Sales' %}selected{% endif %}>Insurance Sales</option>
+                    <option value="Financial Planning" {% if agent.certifications == 'Financial Planning' %}selected{% endif %}>Financial Planning</option>
+                    <option value="Wealth Management" {% if agent.certifications == 'Wealth Management' %}selected{% endif %}>Wealth Management</option>
+                    <option value="Risk Assessment" {% if agent.certifications == 'Risk Assessment' %}selected{% endif %}>Risk Assessment</option>
+                    <option value="Customer Relationship Management" {% if agent.certifications == 'Customer Relationship Management' %}selected{% endif %}>Customer Relationship Management</option>
+                </select>
+                <small id="certifications_error" class="text-danger"></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Languages -->
+            <div class="col-md-6 mb-3">
+                <label for="languages" class="form-label" style="font-weight: bold; color: #fff;">Languages (Select the language)</label>
+                <div id="languages" class="btn-group" role="group" aria-label="Languages" style="display: flex; flex-wrap: wrap;">
+                    <input type="checkbox" class="btn-check" id="english" name="languages" value="English" {% if 'English' in agent.languages %}checked{% endif %} autocomplete="off">
+                    <label class="btn btn-outline-light m-1" for="english">English</label>
+
+                    <input type="checkbox" class="btn-check" id="hindi" name="languages" value="Hindi" {% if 'Hindi' in agent.languages %}checked{% endif %} autocomplete="off">
+                    <label class="btn btn-outline-light m-1" for="hindi">Hindi</label>
+
+                    <input type="checkbox" class="btn-check" id="tamil" name="languages" value="Tamil" {% if 'Tamil' in agent.languages %}checked{% endif %} autocomplete="off">
+                    <label class="btn btn-outline-light m-1" for="tamil">Tamil</label>
+
+                    <input type="checkbox" class="btn-check" id="telugu" name="languages" value="Telugu" {% if 'Telugu' in agent.languages %}checked{% endif %} autocomplete="off">
+                    <label class="btn btn-outline-light m-1" for="telugu">Telugu</label>
+
+                    <input type="checkbox" class="btn-check" id="marathi" name="languages" value="Marathi" {% if 'Marathi' in agent.languages %}checked{% endif %} autocomplete="off">
+                    <label class="btn btn-outline-light m-1" for="marathi">Marathi</label>
+
+                </div>
+                <span class="text-danger error-message" id="languages_error"></span>
+            </div>
+
+            <!-- Specialization -->
+            <div class="col-md-6 mb-3">
+                <label for="specialization" class="form-label" style="font-weight: bold; color: #fff;">Specialization</label>
+                <select class="form-control" id="specialization" name="specialization">
+                    <option value="" disabled>Select specialization</option>
+                    <option value="Life Insurance" {% if agent.specialization == 'Life Insurance' %}selected{% endif %}>Life Insurance</option>
+                    <option value="Health Insurance" {% if agent.specialization == 'Health Insurance' %}selected{% endif %}>Health Insurance</option>
+                    <option value="Auto Insurance" {% if agent.specialization == 'Auto Insurance' %}selected{% endif %}>Auto Insurance</option>
+                    <option value="Property Insurance" {% if agent.specialization == 'Property Insurance' %}selected{% endif %}>Property Insurance</option>
+                    <option value="Travel Insurance" {% if agent.specialization == 'Travel Insurance' %}selected{% endif %}>Travel Insurance</option>
+                </select>
+                <small id="specialization_error" class="text-danger"></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Profile Picture -->
+            <div class="col-md-6 mb-3">
+                <label for="profile_picture" class="form-label" style="font-weight: bold; color: #fff;">Profile Picture</label>
+
+                <!-- Display the current profile picture -->
+                {% if agent.profile_picture %}
+                <div class="mb-3">
+                    <img src="{{ agent.profile_picture.url }}" alt="Current Profile Picture" style="width: 150px; height: 150px; border-radius: 5px; border: 2px solid #003366; object-fit: cover;">
+                </div>
+                {% else %}
+                <p style="color: #fff;">No profile picture uploaded.</p>
+                {% endif %}
+
+                <!-- File input for updating the profile picture -->
+                <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                <small id="profile_picture_error" class="text-danger"></small>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Submit Button -->
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn" style="background-color: #003366; color: white; padding: 14px 35px; text-align: center; border-radius: 5px; font-size: 1.1rem; font-weight: bold;">Update Agent</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Real-time validation
+    document.getElementById("agentForm").addEventListener("input", function(event) {
+        let form = event.target.closest("form");
+        let isValid = true;
+
+        // Validate Full Name
+        let fullName = document.getElementById("full_name");
+        if (!fullName.value) {
+            document.getElementById("full_name_error").textContent = "Full name is required.";
+            isValid = false;
+        } else {
+            document.getElementById("full_name_error").textContent = "";
+        }
+
+        // Validate Email
+        let email = document.getElementById("email");
+        let emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        if (!email.value) {
+            document.getElementById("email_error").textContent = "Email is required.";
+            isValid = false;
+        } else if (!emailPattern.test(email.value)) {
+            document.getElementById("email_error").textContent = "Invalid email format.";
+            isValid = false;
+        } else {
+            document.getElementById("email_error").textContent = "";
+        }
+
+        // Validate Phone Number
+        let phoneNumber = document.getElementById("phone_number");
+        let phonePattern = /^[0-9]{10}$/;
+        if (!phoneNumber.value) {
+            document.getElementById("phone_number_error").textContent = "Phone number is required.";
+            isValid = false;
+        } else if (!phonePattern.test(phoneNumber.value)) {
+            document.getElementById("phone_number_error").textContent = "Phone number must be 10 digits.";
+            isValid = false;
+        } else {
+            document.getElementById("phone_number_error").textContent = "";
+        }
+
+        // Validate PAN Card
+        let panCard = document.getElementById("pan_card");
+        let panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panCard.value) {
+            document.getElementById("pan_card_error").textContent = "PAN card is required.";
+            isValid = false;
+        } else if (!panPattern.test(panCard.value)) {
+            document.getElementById("pan_card_error").textContent = "Invalid PAN card format.";
+            isValid = false;
+        } else {
+            document.getElementById("pan_card_error").textContent = "";
+        }
+
+        // Validate Aadhaar Card
+        let aadhaarCard = document.getElementById("aadhaar_card");
+        let aadhaarPattern = /^[0-9]{12}$/;
+        if (!aadhaarCard.value) {
+            document.getElementById("aadhaar_card_error").textContent = "Aadhaar card is required.";
+            isValid = false;
+        } else if (!aadhaarPattern.test(aadhaarCard.value)) {
+            document.getElementById("aadhaar_card_error").textContent = "Invalid Aadhaar card number.";
+            isValid = false;
+        } else {
+            document.getElementById("aadhaar_card_error").textContent = "";
+        }
+
+        // Validate Address
+        let address = document.getElementById("address");
+        if (!address.value) {
+            document.getElementById("address_error").textContent = "Address is required.";
+            isValid = false;
+        } else {
+            document.getElementById("address_error").textContent = "";
+        }
+
+        // Validate Experience
+        let experience = document.getElementById("experience");
+        if (!experience.value) {
+            document.getElementById("experience_error").textContent = "Experience is required.";
+            isValid = false;
+        } else {
+            document.getElementById("experience_error").textContent = "";
+        }
+
+        // Validate Certifications
+        let certifications = document.getElementById("certifications");
+        if (!certifications.value) {
+            document.getElementById("certifications_error").textContent = "Certifications are required.";
+            isValid = false;
+        } else {
+            document.getElementById("certifications_error").textContent = "";
+        }
+
+        // Validate Languages
+        let languages = document.querySelectorAll("input[name='languages']:checked");
+        if (languages.length === 0) {
+            document.getElementById("languages_error").textContent = "At least one language is required.";
+            isValid = false;
+        } else {
+            document.getElementById("languages_error").textContent = "";
+        }
+
+        // Validate Specialization
+        let specialization = document.getElementById("specialization");
+        if (!specialization.value) {
+            document.getElementById("specialization_error").textContent = "Specialization is required.";
+            isValid = false;
+        } else {
+            document.getElementById("specialization_error").textContent = "";
+        }
+
+        return isValid;
+    });
+</script>
+{% endblock %}

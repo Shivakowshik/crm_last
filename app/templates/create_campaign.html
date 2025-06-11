@@ -1,0 +1,132 @@
+{% extends 'admin_nav.html' %} {% block content %}
+<div class="container mt-5">
+    <h2 class="text-center" style="font-size: 2.5rem; font-weight: bold; color: #002f56;">Create a New Campaign</h2>
+
+    <!-- Display any form errors -->
+    {% if messages %}
+    <div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        // Automatically remove the messages after 5 seconds
+        setTimeout(() => {
+            const messageContainer = document.getElementById('messages-container');
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
+    </script>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" style="margin-top: 2%; background-color: #3680ca; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Agent Name (Dropdown) -->
+            <div class="col-md-6 mb-3">
+                <label for="agentName" class="form-label text-white font-weight-bold">Agent Name</label>
+                <select class="form-control" id="agentName" name="agent" required>
+                    <option value="" disabled selected>Select an Agent</option>
+                    {% for agent in agents %}
+                        <option value="{{ agent.id }}" {% if form.agent.value == agent.id|stringformat:"s" %}selected{% endif %}>{{ agent.full_name }}</option>
+                    {% endfor %}
+                </select> {% if form.agent.errors %}
+                <div class="text-danger">
+                    {% for error in form.agent.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Location -->
+            <div class="col-md-6 mb-3">
+                <label for="location" class="form-label text-white font-weight-bold">Location</label>
+                <input type="text" class="form-control" id="location" name="location" value="{{ form.location.value|default:'' }}" required maxlength="100"> {% if form.location.errors %}
+                <div class="text-danger">
+                    {% for error in form.location.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Campaign Name -->
+            <div class="col-md-6 mb-3">
+                <label for="campaignName" class="form-label text-white font-weight-bold">Campaign Name</label>
+                <input type="text" class="form-control" id="campaignName" name="campaign_name" value="{{ form.campaign_name.value|default:'' }}" required maxlength="200"> {% if form.campaign_name.errors %}
+                <div class="text-danger">
+                    {% for error in form.campaign_name.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Start Date -->
+            <div class="col-md-6 mb-3">
+                <label for="startDate" class="form-label text-white font-weight-bold">Start Date</label>
+                <input type="date" class="form-control" id="startDate" name="start_date" value="{{ form.start_date.value|default:'' }}" required> {% if form.start_date.errors %}
+                <div class="text-danger">
+                    {% for error in form.start_date.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- End Date -->
+            <div class="col-md-6 mb-3">
+                <label for="endDate" class="form-label text-white font-weight-bold">End Date</label>
+                <input type="date" class="form-control" id="endDate" name="end_date" value="{{ form.end_date.value|default:'' }}" required> {% if form.end_date.errors %}
+                <div class="text-danger">
+                    {% for error in form.end_date.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Budget -->
+            <div class="col-md-6 mb-3">
+                <label for="budget" class="form-label text-white font-weight-bold">Budget (in INR)</label>
+                <input type="number" class="form-control" id="budget" name="budget" value="{{ form.budget.value|default:'' }}" required maxlength="10"> {% if form.budget.errors %}
+                <div class="text-danger">
+                    {% for error in form.budget.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Banner Upload -->
+            <div class="col-md-12 mb-3">
+                <label for="banner" class="form-label text-white font-weight-bold">Upload Campaign Banner</label>
+                <input type="file" class="form-control" id="banner" name="banner_image" accept="image/*"> {% if form.banner_image.errors %}
+                <div class="text-danger">
+                    {% for error in form.banner_image.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Submit Button -->
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn" style="background-color: #003366; color: white; padding: 14px 35px; text-align: center; border-radius: 5px; font-size: 1.1rem; font-weight: bold;">Create Campaign</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

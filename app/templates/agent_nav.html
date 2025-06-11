@@ -1,0 +1,300 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>CRM Insurance Portal - Agent Dashboard</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .content {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        footer {
+            background-color: #003366;
+            padding: 0px 0;
+            color: aliceblue;
+            text-align: center;
+            margin-top: 5%;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin: 20px;
+        }
+        
+        .footer-section h4 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 5px;
+        }
+        
+        .footer-section ul li a {
+            text-decoration: none;
+            color: #f1e6e6;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-section ul li a:hover {
+            color: #a9d1f0;
+            text-decoration: underline;
+        }
+        
+        .footer-bottom {
+            padding: 10px 0;
+            background-color: #002244;
+            font-size: 14px;
+        }
+        
+        .navbar-brand img {
+            width: 3rem;
+            border-radius: 50%;
+            margin-right: 0.8rem;
+        }
+        
+        .navbar-brand span {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f8f9fa;
+            text-shadow: 1px 1px 2px #003366;
+        }
+        
+        .offcanvas-start {
+            background-color: #003366;
+            color: #fff;
+            width: 250px;
+        }
+        
+        .offcanvas-body .nav-card {
+            background-color: #004080;
+            color: #f1e6e6;
+            margin: 10px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            padding: 15px;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .offcanvas-body .nav-card:hover {
+            background-color: #005bb5;
+            color: #fff;
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-image {
+            position: fixed;
+            bottom: 40px;
+            right: 20px;
+            width: 90px;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .contact-image:hover {
+            transform: scale(1.1);
+        }
+        
+        .nav-card {
+            background: #003559;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-card img.icon {
+            width: 25px;
+            margin-right: 15px;
+            filter: invert(100%);
+        }
+        
+        .nav-card:hover {
+            background: linear-gradient(145deg, #004b89, #0071b3);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+        }
+        /* Hide the brand name on small screens */
+        
+        @media (max-width: 768px) {
+            .navbar-brand span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg" style="background-color: #002742;">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="https://crmindia.co.in/wp-content/uploads/2020/11/CRM-New-Logo-1000.png" alt="Logo" style="height: 40px;">
+                <span class="ms-2 text-white">CRM Insurance</span>
+            </a>
+            <div class="d-flex align-items-center ms-auto">
+                <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+                <img src="https://i.pinimg.com/originals/26/9d/d1/269dd16fa1f5ff51accd09e7e1602267.png" alt="Menu" style="width: 40px;">
+            </button>
+                <!-- User Dropdown with Badge -->
+                <div class="dropdown ms-3 d-flex align-items-center">
+                    <!-- Dropdown Button -->
+                    <div style="width: 150px;">
+                        <button class="btn btn-secondary dropdown-toggle text-truncate d-flex align-items-center" type="button" data-bs-toggle="dropdown" style="width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem; height: 40px;">
+<!-- Circular Badge -->
+<div class="rounded-circle text-white d-flex align-items-center justify-content-center" 
+     style="width: 30px; height: 30px; background-color: #007bff; font-size: 1rem; margin-right: 10px; 
+            display: inline-flex; justify-content: center; align-items: center; 
+            min-width: 30px; min-height: 30px;">
+    {{ request.user.agent.full_name|slice:":1" }}
+</div>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; display: inline-block;">
+    {{ request.user.agent.full_name }}
+</span>
+        </button>
+                        <ul class="dropdown-menu dropdown-menu-start">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'homepage' %}">Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasScrolling">
+        <div class="offcanvas-header">
+            <!-- User Info Section -->
+            <div class="d-flex align-items-center w-100">
+                <img src="https://crmindia.co.in/wp-content/uploads/2020/11/CRM-New-Logo-1000.png" alt="Logo" style="width: 70px; height: 70px; border-radius: 50%; margin-right: 15px; border: 2px solid #007bff;">
+                <div class="text-start">
+                    <div class="fw-bold" style="font-size: 1.8rem; color: #ffffff;">{{ request.user.agent.full_name }}</div>
+                    <div style="font-size: 1rem; color: #c5c2c2;">CRM Insurance</div>
+                    <div style="font-size: 1rem; color: #007bff;">{{ request.user.email }}</div>
+                </div>
+            </div>
+            <!-- Close Button -->
+            <button type="button" class="btn-close text-white" data-bs-dismiss="offcanvas" aria-label="Close" style="background-color: #f8f9fa;"></button>
+        </div>
+        <hr style="border: 1px solid #e9ecef; opacity: 0.9; margin: 15px;">
+        <div class="offcanvas-body">
+
+            <div class="offcanvas-body">
+                <a href="{% url 'agent_home' %}" class="nav-card">Dashboard</a>
+                <a href="{% url 'agent_profile' %}" class="nav-card">Profile</a>
+                <a href="{% url 'agent_campaigns' %}" class="nav-card">Campaigns</a>
+                <a href="{% url 'add_client' %}" class="nav-card">Add Client</a>
+                <a href="{% url 'collected_clients' %}" class="nav-card">Collected Clients</a>
+                <a href="{% url 'add_attendance' %}" class="nav-card">ADD Attendance</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Content -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>OUR SERVICES</h4>
+                <ul>
+                    <li><a href="#">Health Insurance</a></li>
+                    <li><a href="#">Life Insurance</a></li>
+                    <li><a href="#">Vehicle Insurance</a></li>
+                    <li><a href="#">Property Insurance</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>COMPANY</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Media</a></li>
+                    <li><a href="#">Press Releases</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>SUPPORT</h4>
+                <ul>
+                    <li><a href="#">Claims Assistance</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Live Chat</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 CRM Insurance Portal. All Rights Reserved.
+        </div>
+    </footer>
+
+
+    <!-- Contact Modal Trigger -->
+    <img src="{% static 'images/img6.jpg' %}" class="contact-image" alt="Contact Us" data-bs-toggle="modal" data-bs-target="#contactModal">
+    <!-- Contact Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title">Contact Us</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Phone with Icon -->
+                    <p><i class="fas fa-phone-alt"></i> <a href="tel:+919348567890">Phone: +91 93485 67890</a></p>
+
+                    <!-- Email with Icon -->
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:contact@crminsurance.com">Email: contact@crminsurance.com</a></p>
+
+                    <!-- Address with Icon -->
+                    <p><i class="fas fa-map-marker-alt"></i> Address: CRM Insurance, 100 feet road, Chennai, India</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

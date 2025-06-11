@@ -1,0 +1,121 @@
+{% extends 'agent_nav.html' %} {% block content %}
+
+
+<script>
+    // Function to format time as HH:MM:SS
+    function formatTime(date) {
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let seconds = date.getSeconds();
+
+        // Pad single digit minutes and seconds with leading zero
+        hours = hours < 10 ? '0' + hours : hours;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
+    // Set the current time in the input field
+    window.onload = function() {
+        const currentTime = new Date();
+        document.getElementById("id_time").value = formatTime(currentTime);
+    };
+</script>
+<div class="container mt-5">
+    <h2 style="text-align: center; font-size: 2.5rem; font-weight: bold; color: #002f56;">Add Attendance</h2>
+
+    <!-- Display any form errors -->
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <form method="POST" style="margin-top: 2%; background-color: #3680ca; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); max-width: 600px; margin: auto;">
+        {% csrf_token %}
+
+        <!-- Location Field -->
+        <div class="form-group">
+            <label for="id_location" class="form-label" style="font-weight: bold; color: #fff; font-size: 1rem;">Location</label>
+            <input type="text" id="id_location" name="location" class="form-control" required>
+        </div>
+
+        <!-- Date Field (Auto-filled and Readonly) -->
+        <div class="form-group">
+            <label for="id_date" class="form-label" style="font-weight: bold; color: #fff; font-size: 1rem;">Date</label>
+            <input type="text" id="id_date" name="date" class="form-control" value="{{ current_date }}" readonly>
+        </div>
+
+        <!-- Time Field (Auto-filled and Readonly) -->
+        <div class="form-group">
+            <label for="id_time" class="form-label" style="font-weight: bold; color: #fff; font-size: 1rem;">Time</label>
+            <input type="text" id="id_time" name="time" class="form-control" readonly>
+        </div>
+
+
+        <!-- Submit button -->
+        <div class="text-center mt-4">
+            <button type="submit" class="button">
+                Add Attendance
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+<style>
+    .form-control {
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        transition: border-color 0.3s ease;
+        width: 100%;
+    }
+    
+    .form-control:focus {
+        border-color: #003366;
+        box-shadow: 0 0 5px rgba(0, 51, 102, 0.4);
+    }
+    
+    input[readonly] {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+    
+    .alert {
+        margin-top: 15px;
+    }
+    
+    .button {
+        background-color: #28a745;
+        color: rgb(158, 3, 3);
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 12px 40px;
+        font-size: 1.1rem;
+        width: 100%;
+    }
+    
+    .button:hover {
+        background-color: #218838;
+    }
+    
+    form {
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    h2 {
+        color: #002f56;
+        font-weight: bold;
+        font-size: 2.5rem;
+    }
+</style>

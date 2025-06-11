@@ -1,0 +1,254 @@
+{% extends 'admin_nav.html' %} {% block content %}{% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+
+
+<style>
+    .container {
+        background: #3680ca;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        color: #ffffff;
+        margin: auto;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 16px;
+        text-align: left;
+        background-color: #ffffff;
+    }
+    
+    th,
+    td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+        word-wrap: break-word;
+        white-space: nowrap;
+        color: #000000;
+    }
+    
+    th {
+        background-color: #002a55;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .form-select {
+        width: 100%;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        margin-bottom: 20px;
+        padding: 8px;
+    }
+    
+    .styled-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #00509e;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    
+    .styled-button:hover {
+        background-color: #003366;
+    }
+    
+    .no-data {
+        text-align: center;
+        color: #ff0000;
+        font-size: 18px;
+        font-weight: bold;
+        display: none;
+    }
+    /* Responsive Design */
+    
+    @media (max-width: 768px) {
+        table {
+            font-size: 14px;
+        }
+        th,
+        td {
+            padding: 8px;
+        }
+        .styled-button {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+        .container {
+            padding: 15px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+        th,
+        td {
+            padding: 6px;
+        }
+        .styled-button {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .container {
+            padding: 10px;
+        }
+    }
+</style>
+
+<h3 style="color: #00458f; text-align: center; margin-top: 1%;"><strong>Agents Location</strong></h3>
+
+<div class="container">
+    <!-- Filter Section -->
+    <div id="filterSection">
+        <h4 style="color: #ffffff; text-align: center;">Filter by Agent Code and Date</h4>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <input type="text" id="agentCode" placeholder="Enter Agent Code" style="width: 80%; padding: 10px; font-size: 16px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+            <button onclick="showFilters()" class="styled-button" style="margin-top: 10px; padding: 10px 20px; font-size: 16px; border: none; background-color: #003366; color: white; cursor: pointer; border-radius: 4px;">
+                Search
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Filter Section -->
+    <div id="dateFilterSection" style="display: none; text-align: center;">
+        <input type="date" id="date" style="width: 80%; padding: 10px; font-size: 16px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        <button onclick="filterTable()" class="styled-button" style="margin-top: 10px; padding: 10px 20px; font-size: 16px; border: none; background-color: #003366; color: white; cursor: pointer; border-radius: 4px;">
+            Filter
+        </button>
+    </div>
+
+    <!-- Table Section -->
+    <div id="tableSection" style="display: none;">
+        <div class="table-responsive" style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Agent Code</th>
+                        <th>Agent Name</th>
+                        <th>Location</th>
+                        <th>Date</th>
+                        <th>Visit Time</th>
+                        <th>Map</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for att in attendance_records %}
+                    <tr>
+                        <td>{{ att.agent.code }}</td>
+                        <td>{{ att.agent.full_name }}</td>
+                        <td>{{ att.location }}</td>
+                        <td>{{ att.date }}</td>
+                        <td>{{ att.time|date:"H:i:s" }}</td>
+                        <td>
+                            {% if att.location %}
+                            <a href="https://www.google.com/maps?q={{ att.location }}" target="_blank">
+                                <img src="https://cdn2.iconfinder.com/data/icons/social-media-2259/512/google-256.png" alt="Map Icon" style="width: 24px; height: 24px;">
+                            </a>
+                            {% else %}
+                            <span>No Map Available</span> {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="no-data">No data found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+            <div id="noData" class="no-data">No data found</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showFilters() {
+        const agentCode = document.getElementById('agentCode').value.trim().toUpperCase();
+        const rows = document.querySelectorAll('#tableBody tr');
+        let hasResults = false;
+
+        rows.forEach(row => {
+            const codeCell = row.querySelector('td:first-child').textContent.trim().toUpperCase();
+            if (!agentCode || codeCell.includes(agentCode)) {
+                row.style.display = '';
+                hasResults = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('noData').style.display = hasResults ? 'none' : 'block';
+        document.getElementById('tableSection').style.display = 'block';
+        document.getElementById('dateFilterSection').style.display = 'block';
+    }
+
+    function filterTable() {
+        const agentCode = document.getElementById('agentCode').value.trim().toUpperCase();
+        const dateInput = document.getElementById('date').value; // Get input date in YYYY-MM-DD format
+        const rows = document.querySelectorAll('#tableBody tr');
+        let hasResults = false;
+
+        rows.forEach(row => {
+            const codeCell = row.querySelector('td:first-child').textContent.trim().toUpperCase();
+            const dateCell = row.querySelector('td:nth-child(4)').textContent.trim(); // Get the date from the table
+
+            // Convert the displayed date (e.g., "Dec. 3, 2024") to a standardized format (YYYY-MM-DD)
+            const formattedDate = formatDate(dateCell);
+
+            // Check if the agent code or date matches the filter
+            if ((!agentCode || codeCell.includes(agentCode)) && (!dateInput || formattedDate.includes(dateInput))) {
+                row.style.display = '';
+                hasResults = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Reset the date input field and display the noData message if no results
+        document.getElementById('date').value = ''; // Clear the date filter input
+        document.getElementById('noData').style.display = hasResults ? 'none' : 'block';
+    }
+
+    function formatDate(dateString) {
+        // Parse the date string like "Dec. 3, 2024" into a standardized format (YYYY-MM-DD)
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = ("0" + (date.getMonth() + 1)).slice(-2); // Adding 1 to month as months are 0-indexed
+        const day = ("0" + date.getDate()).slice(-2);
+        return `${year}-${month}-${day}`; // Return in YYYY-MM-DD format
+    }
+</script>
+{% endblock %}

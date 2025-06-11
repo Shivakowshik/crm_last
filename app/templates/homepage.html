@@ -1,0 +1,381 @@
+{% extends 'nav.html' %} {% load static %} {% block content %}{% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>CRM Insurance Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .dashboard-header {
+            background-color: #003366;
+            color: rgb(255, 255, 255);
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .dashboard-container {
+            margin: 0 5%;
+            max-width: 90%;
+            flex: 1;
+            margin-top: 3%;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card h5 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #003558;
+        }
+        
+        .chart-container {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            margin: 0;
+        }
+        
+        canvas {
+            width: 50% !important;
+            height: 300px !important;
+        }
+        
+        .insurance-info {
+            padding: 20px;
+            border-top: 2px solid #003366;
+        }
+        
+        @media (max-width: 767px) {
+            .dashboard-header h1 {
+                font-size: 1.6rem;
+            }
+            .card {
+                margin-bottom: 15px;
+            }
+            .card-body h5 {
+                font-size: 1rem;
+            }
+            .chart-container {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .row.mt-4 {
+                margin-top: 10px;
+            }
+            .image-gallery img {
+                margin: 10px;
+                width: 100%;
+                max-width: 120px;
+                height: auto;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+            .image-gallery .col-md-2 {
+                flex: 1 1 45%;
+                margin-bottom: 15px;
+            }
+            .image-gallery .col-md-2 img {
+                max-width: 100px;
+            }
+        }
+        
+        .image-gallery img {
+            margin: 10px;
+            width: 80%;
+            max-width: 150px;
+            height: auto;
+            object-fit: cover;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .image-gallery .col-md-2 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @media (max-width: 767px) {
+            canvas {
+                width: 80% !important;
+                /* Increase width for smaller screens */
+            }
+        }
+        
+        @media (max-width: 576px) {
+            canvas {
+                width: 100% !important;
+                /* Full width for extra small screens */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1>CRM Insurance Dashboard</h1>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container container my-4">
+        <!-- Stats Cards -->
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5>Total Policies</h5>
+                        <h2>{{ total_policies }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5>Clients</h5>
+                        <h2>{{ total_clients }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5>Agents</h5>
+                        <h2>{{ total_agents }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5>Campaigns</h5>
+                        <h2>{{ total_campaigns }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Graphs Section -->
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <div class="card chart-container">
+                    <canvas id="policyChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="card chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12 col-12">
+                <div class="card chart-container">
+                    <canvas id="campaignsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Image Gallery -->
+        <div class="my-5" style="background-color: #fbfbfb;">
+            <h3 class="text-center mb-4" style="font-weight: bold; color: #003366; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); padding-top: 50px;">
+                WHY BUY ONLINE
+            </h3>
+            <p class="text-center mb-5"><strong>Choosing to buy online has benefits</strong></p>
+
+            <div class="row text-center justify-content-center image-gallery">
+                <!-- Image 1 -->
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 mb-4">
+                    <div class="card border-0 shadow-sm d-flex flex-column">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 190px;">
+                            <img src="{% static 'images/img1.gif' %}" class="img-fluid hover-effect" alt="Online Discounts">
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text font-weight-bold">Online Discounts</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 2 -->
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 mb-4">
+                    <div class="card border-0 shadow-sm d-flex flex-column">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 170px;">
+                            <img src="{% static 'images/img2.gif' %}" class="img-fluid hover-effect" alt="Hassle-Free Purchase">
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text font-weight-bold">Hassle-Free Purchase Process</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 3 -->
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 mb-4">
+                    <div class="card border-0 shadow-sm d-flex flex-column">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 170px;">
+                            <img src="{% static 'images/img3.gif' %}" class="img-fluid hover-effect" alt="Smooth Transactions">
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text font-weight-bold">Smooth and Secure Transactions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 4 -->
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 mb-4">
+                    <div class="card border-0 shadow-sm d-flex flex-column">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 170px;">
+                            <img src="{% static 'images/img4.gif' %}" class="img-fluid hover-effect" alt="Transparent Assistance">
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text font-weight-bold">Transparent and Reliable Assistance</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image 5 -->
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12 mb-4">
+                    <div class="card border-0 shadow-sm d-flex flex-column">
+                        <div class="d-flex justify-content-center align-items-center" style="height: 170px;">
+                            <img src="{% static 'images/img5.gif' %}" class="img-fluid hover-effect" alt="Dedicated Manager">
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text font-weight-bold">Dedicated Relationship Manager</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information Section -->
+        <div class="insurance-info">
+            <p>Insurance plays a crucial role in providing financial security and peace of mind. It safeguards individuals and businesses against unforeseen risks and uncertainties. From health and life insurance to property and vehicle coverage, a comprehensive
+                insurance plan ensures stability and support in times of need.</p>
+        </div>
+        <script>
+            const policyChartData = JSON.parse('{{ policy_chart_data|safe }}');
+            const clientChartData = JSON.parse('{{ client_chart_data|safe }}');
+            const campaignsChartData = JSON.parse('{{ campaigns_chart_data|safe }}');
+        </script>
+
+        <!-- Chart.js Script -->
+        <script>
+            // Policy Chart
+            const ctxPolicy = document.getElementById('policyChart').getContext('2d');
+            new Chart(ctxPolicy, {
+                type: 'bar',
+                data: {
+                    labels: policyChartData.labels,
+                    datasets: [{
+                        label: 'Number of Policies',
+                        data: policyChartData.data,
+                        backgroundColor: ['#003366', '#0066cc', '#3399ff', '#99ccff']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // Client Chart
+            const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctxRevenue, {
+                type: 'pie',
+                data: {
+                    labels: clientChartData.labels,
+                    datasets: [{
+                        label: 'Client Count',
+                        data: clientChartData.data,
+                        backgroundColor: ['#003366', '#0066cc', '#3399ff', '#99ccff']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // Campaigns Chart
+            const ctxCampaigns = document.getElementById('campaignsChart').getContext('2d');
+            new Chart(ctxCampaigns, {
+                type: 'line',
+                data: {
+                    labels: campaignsChartData.labels,
+                    datasets: [{
+                        label: 'Campaigns',
+                        data: campaignsChartData.data,
+                        borderColor: '#003366',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        </script>
+
+</body>
+
+</html>
+{% endblock %}

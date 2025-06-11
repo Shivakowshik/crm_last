@@ -1,0 +1,149 @@
+{% extends 'nav.html' %} {% block content %}
+<div class="container" style="min-height: 60vh; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; margin-top: 20px;">
+    {% if messages %}
+    <div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        // Automatically remove the messages after 5 seconds
+        setTimeout(() => {
+            const messageContainer = document.getElementById('messages-container');
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
+    </script>
+    {% endif %}
+
+
+    <div class="login-container" style="background-color:#3680ca;">
+        <h3>Welcome to CRM Insurance</h3>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    <strong style="color:#ffffff;">Username</strong>
+                </label>
+                <input type="text" class="form-control" id="username" name="username" required>
+                <span id="username-error" class="text-danger error-message" style="display: none;">Invalid username. Please follow the required format.</span> {% if form.username.errors %}
+                <span class="text-danger error-message">{{ form.username.errors.0 }}</span> {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    <strong style="color:#ffffff;">Password</strong>
+                </label>
+                <input type="password" class="form-control" id="password" name="password" required> {% if form.password.errors %}
+                <span class="text-danger error-message">{{ form.password.errors.0 }}</span> {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+        <div class="form-footer mt-3" style="color: #ffffff;">
+            <p>
+                <a href="{% url 'forgot_password' %}" style="color: #00157c;">Forgot Password?</a>
+            </p>
+        </div>
+        <div class="form-footer mt-3" style="color: #ffffff;">
+            <p>
+                New user? <a href="{% url 'add_agent' %}" style="color:#00157c;">Register</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('username').addEventListener('input', function() {
+            const username = this.value;
+            const usernameError = document.getElementById('username-error');
+
+            // Example: Check if username is at least 5 characters long
+            if (username.length < 5) {
+                usernameError.style.display = 'block';
+            } else {
+                usernameError.style.display = 'none';
+            }
+        });
+    </script>
+
+    <style>
+        .login-container {
+            background: #fff;
+            color: #003366;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .login-container h3 {
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-control {
+            border-radius: 5px;
+            height: 45px;
+        }
+        
+        .btn-primary {
+            background: #003366;
+            border: none;
+            border-radius: 5px;
+            height: 45px;
+        }
+        
+        .btn-primary:hover {
+            background: #00509e;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .form-footer a {
+            color: #003366;
+            text-decoration: none;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .custom-alert {
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .custom-alert.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .custom-alert.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .custom-alert.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .custom-alert.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+    </style>
+    {% endblock %}

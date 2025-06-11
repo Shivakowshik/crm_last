@@ -1,0 +1,228 @@
+{% extends 'agent_nav.html' %} {% load static %} {% block content %} {% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+
+<div class="hero-section">
+    <!-- Welcome Section -->
+    <div class="container">
+        <h1>Welcome, {{ request.user.agent.full_name }}!</h1>
+        <p>Your dashboard provides quick access to your key metrics and actions.</p>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="container mt-3">
+    <div class="row text-center">
+        <div class="col-md-4 col-12">
+            <div class="card shadow-sm p-3 mb-4 bg-body rounded">
+                <div class="card-body" style="background-color:#eef3fa;">
+                    <h5 class="card-title">Clients Added</h5>
+                    <p class="card-text display-4">{{ clients_added_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12">
+            <div class="card shadow-sm p-3 mb-4 bg-body rounded">
+                <div class="card-body" style="background-color:#eef3fa;">
+                    <h5 class="card-title">Campaigns</h5>
+                    <p class="card-text display-4">{{ campaigns_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12">
+            <div class="card shadow-sm p-3 mb-4 bg-body rounded">
+                <div class="card-body" style="background-color:#eef3fa;">
+                    <h5 class="card-title">Total Clients</h5>
+                    <p class="card-text display-4">{{ collected_clients_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions in Separate Container -->
+<div class="container mt-4">
+    <div class="quick-actions-section p-4 shadow-sm rounded" style="background-color: #f7f9fc;">
+        <div class="text-center">
+            <h3 class="text" style="font-weight: bold; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); color: #003366;">
+                Quick Actions
+            </h3>
+            <p class="text-muted">Easily access your most-used features with a single click.</p>
+        </div>
+        <div class="row justify-content-center mt-3">
+            <!-- Button 1 -->
+            <div class="col-lg-4 col-md-5 col-sm-6 col-12 mb-3">
+                <a href="{% url 'add_client' %}" class="btn btn-primary w-100 py-2" style="background: #003366; color: white; border-radius: 8px; text-transform: uppercase; font-size: 0.9rem;">
+                    Add New Client
+                </a>
+            </div>
+            <!-- Button 2 -->
+            <div class="col-lg-4 col-md-5 col-sm-6 col-12 mb-3">
+                <a href="{% url 'agent_campaigns' %}" class="btn btn-secondary w-100 py-2" style="background: #00509e; color: white; border-radius: 8px; text-transform: uppercase; font-size: 0.9rem;">
+                    View Campaigns
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Graph Section -->
+<div class="container my-5">
+    <div class="row">
+        <!-- Clients Added This Month -->
+        <div class="col-md-6 col-12 mb-4">
+            <div class="card shadow-lg p-4 chart-container">
+                <h4 class="text-center mb-4" style="color: #003366;">Clients Added This Month</h4>
+                <canvas id="clientsAddedChart"></canvas>
+            </div>
+        </div>
+        <!-- Campaigns in This Month -->
+        <div class="col-md-6 col-12 mb-4">
+            <div class="card shadow-lg p-4 chart-container">
+                <h4 class="text-center mb-4" style="color: #003366;">Campaigns in This Month</h4>
+                <canvas id="campaignsThisMonthChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Prepare Data for the Charts
+    const clientsThisMonthData = JSON.parse('{{ clients_this_month_data|safe }}');
+    const campaignsThisMonthData = JSON.parse('{{ campaigns_this_month_data|safe }}');
+
+    // Clients Added This Month (Bar Chart)
+    const clientsAddedCtx = document.getElementById('clientsAddedChart').getContext('2d');
+    new Chart(clientsAddedCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Clients Added'],
+            datasets: [{
+                label: 'Clients',
+                data: [clientsThisMonthData],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Campaigns in This Month (Line Graph)
+    const campaignsThisMonthCtx = document.getElementById('campaignsThisMonthChart').getContext('2d');
+    new Chart(campaignsThisMonthCtx, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'], // Labels for each week of the month
+            datasets: [{
+                label: 'Campaigns',
+                data: campaignsThisMonthData, // Array of data points, e.g., [5, 10, 7, 12]
+                fill: false, // No area under the line
+                borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                backgroundColor: 'rgba(75, 192, 192, 0.5)', // Point background color
+                borderWidth: 2, // Line thickness
+                pointRadius: 5, // Point size
+                tension: 0.4 // Smoothing of the line (set to 0 for straight lines)
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top', // Position of the legend
+                },
+                tooltip: {
+                    enabled: true // Enables tooltips on hover
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Weeks of the Month' // Label for the x-axis
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Start y-axis from zero
+                    title: {
+                        display: true,
+                        text: 'Number of Campaigns' // Label for the y-axis
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #003366, #00509e);
+        color: white;
+        text-align: center;
+        padding: 60px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .hero-section p {
+        font-size: 1rem;
+    }
+    
+    .btn-lg:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .chart-container {
+        width: 100%;
+        height: 400px;
+        background-color: #f7f9fc;
+        border-radius: 10px;
+    }
+    
+    canvas {
+        max-height: 90%;
+        max-width: 100%;
+    }
+    
+    body {
+        overflow-x: hidden;
+    }
+</style>
+
+{% endblock %}

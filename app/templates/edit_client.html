@@ -1,0 +1,218 @@
+{% extends 'agent_nav.html' %} {% block content %} {% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+
+<div class="container my-5" style="background:#3680ca; padding: 40px; border-radius: 10px; color: #ffffff;">
+    <h2 class="text-center mb-4" style="font-weight: bold;">Edit Client</h2>
+    <form method="POST" action="{% url 'edit_client' client.id %}" enctype="multipart/form-data" id="clientForm">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" maxlength="50" value="{{ client.first_name }}" required>
+                <div class="text-danger" id="first_name_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" maxlength="50" value="{{ client.last_name }}" required>
+                <div class="text-danger" id="last_name_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" maxlength="100" value="{{ client.email }}" required>
+                <div class="text-danger" id="email_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" value="{{ client.phone }}" required>
+                <div class="text-danger" id="phone_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="dob" class="form-label">Date of Birth</label>
+                <input type="date" class="form-control" id="dob" name="dob" value="{{ client.dob|date:'Y-m-d' }}" required>
+                <div class="text-danger" id="dob_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="address" name="address" maxlength="200" value="{{ client.address }}" required>
+                <div class="text-danger" id="address_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="aadhar" class="form-label">Aadhar Number</label>
+                <input type="text" class="form-control" id="aadhar" name="aadhar" pattern="\d{12}" maxlength="12" value="{{ client.aadhar }}" required>
+                <div class="text-danger" id="aadhar_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="pan" class="form-label">PAN Number</label>
+                <input type="text" class="form-control" id="pan" name="pan" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" maxlength="10" value="{{ client.pan }}" required>
+                <div class="text-danger" id="pan_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="insurance_type" class="form-label">Type of Insurance</label>
+                <select class="form-select" id="insurance_type" name="insurance_type" required>
+                    <option value="Health" {% if client.insurance_type == 'Health' %}selected{% endif %}>Health Insurance</option>
+                    <option value="Life" {% if client.insurance_type == 'Life' %}selected{% endif %}>Life Insurance</option>
+                    <option value="Vehicle" {% if client.insurance_type == 'Vehicle' %}selected{% endif %}>Vehicle Insurance</option>
+                    <option value="Home" {% if client.insurance_type == 'Home' %}selected{% endif %}>Home Insurance</option>
+                </select>
+                <div class="text-danger" id="insurance_type_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="policy_number" class="form-label">Policy Number</label>
+                <input type="text" class="form-control" id="policy_number" name="policy_number" maxlength="20" value="{{ client.policy_number }}" required>
+                <div class="text-danger" id="policy_number_error"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="photo" class="form-label">Client Photo</label> {% if client.photo %}
+                <div class="mb-2">
+                    <img src="{{ client.photo.url }}" alt="Current Photo" style="max-width: 100%; max-height: 150px; border: 1px solid #ccc; border-radius: 5px;">
+                    <small class="text-light d-block mt-1">Current Photo</small>
+                </div>
+                {% endif %}
+                <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+            </div>
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-primary" style="background-color: #004e92; border: none;">Update Client</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('clientForm');
+
+        const fields = {
+            first_name: {
+                element: document.getElementById('first_name'),
+                errorElement: document.getElementById('first_name_error'),
+                validate: () => form.first_name.value.trim() !== '',
+                errorMessage: 'First name is required.'
+            },
+            last_name: {
+                element: document.getElementById('last_name'),
+                errorElement: document.getElementById('last_name_error'),
+                validate: () => form.last_name.value.trim() !== '',
+                errorMessage: 'Last name is required.'
+            },
+            email: {
+                element: document.getElementById('email'),
+                errorElement: document.getElementById('email_error'),
+                validate: () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.value),
+                errorMessage: 'Enter a valid email address.'
+            },
+            phone: {
+                element: document.getElementById('phone'),
+                errorElement: document.getElementById('phone_error'),
+                validate: () => /^[0-9]{10}$/.test(form.phone.value),
+                errorMessage: 'Phone number must be 10 digits.'
+            },
+            dob: {
+                element: document.getElementById('dob'),
+                errorElement: document.getElementById('dob_error'),
+                validate: () => form.dob.value.trim() !== '',
+                errorMessage: 'Date of birth is required.'
+            },
+            address: {
+                element: document.getElementById('address'),
+                errorElement: document.getElementById('address_error'),
+                validate: () => form.address.value.trim() !== '',
+                errorMessage: 'Address is required.'
+            },
+            aadhar: {
+                element: document.getElementById('aadhar'),
+                errorElement: document.getElementById('aadhar_error'),
+                validate: () => /^[0-9]{12}$/.test(form.aadhar.value),
+                errorMessage: 'Enter a valid Aadhar number.'
+            },
+            pan: {
+                element: document.getElementById('pan'),
+                errorElement: document.getElementById('pan_error'),
+                validate: () => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan.value),
+                errorMessage: 'Enter a valid PAN number.'
+            },
+            insurance_type: {
+                element: document.getElementById('insurance_type'),
+                errorElement: document.getElementById('insurance_type_error'),
+                validate: () => form.insurance_type.value.trim() !== '',
+                errorMessage: 'Please select insurance type.'
+            },
+            policy_number: {
+                element: document.getElementById('policy_number'),
+                errorElement: document.getElementById('policy_number_error'),
+                validate: () => /^[P][0-9]{9}$/.test(form.policy_number.value),
+                errorMessage: 'Policy number must start with P followed by 9 digits.'
+            }
+        };
+
+        Object.values(fields).forEach(({
+            element,
+            errorElement,
+            validate,
+            errorMessage
+        }) => {
+            element.addEventListener('input', () => {
+                if (validate()) {
+                    errorElement.textContent = '';
+                    element.classList.remove('is-invalid');
+                } else {
+                    errorElement.textContent = errorMessage;
+                    element.classList.add('is-invalid');
+                }
+            });
+        });
+
+        form.addEventListener('submit', function(e) {
+            let valid = true;
+            Object.values(fields).forEach(({
+                validate,
+                errorElement,
+                errorMessage,
+                element
+            }) => {
+                if (!validate()) {
+                    errorElement.textContent = errorMessage;
+                    element.classList.add('is-invalid');
+                    valid = false;
+                }
+            });
+            if (!valid) e.preventDefault();
+        });
+    });
+</script>
+
+<style>
+    .form-label {
+        font-weight: bold;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .btn-primary {
+        background-color: #00509e;
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #003366;
+    }
+</style>
+{% endblock %}

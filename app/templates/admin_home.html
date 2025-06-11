@@ -1,0 +1,207 @@
+{% extends 'admin_nav.html' %} {% load static %} {% block content %} {% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+
+
+<!-- Hero Section -->
+<div class="hero-section text-center text-white py-5" style="background: linear-gradient(135deg, #003366, #00509e);">
+    <div class="container">
+        <h1 class="display-4 mb-3">Admin Dashboard</h1>
+        <p class="lead mb-4">Monitor key metrics and manage your platform from this centralized dashboard.</p>
+    </div>
+</div>
+
+<!-- Dashboard Cards -->
+<div class="container mt-4">
+    <div class="row g-4">
+        <!-- Agent Management Card -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm text-dark" style="background-color: #e3f8ff; border: none;">
+                <div class="card-body">
+                    <h5 class="card-title">Agent Management</h5>
+                    <p class="card-text">Manage all your agents and their details efficiently in one place.</p>
+                    <a href="{% url 'approve_agent' %}" class="btn btn-primary" style="background-color: #003366; border: none;">Go to Agent Management</a>
+                </div>
+            </div>
+        </div>
+        <!-- Reports Card -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm text-dark" style="background-color: #e3f8ff; border: none;">
+                <div class="card-body">
+                    <h5 class="card-title">Create Campaigns</h5>
+                    <p class="card-text">Create and manage campaigns for your agents and clients.</p>
+                    <a href="{% url 'create_campaign' %}" class="btn btn-primary" style="background-color: #003366; border: none;">Create Campaign</a>
+                </div>
+            </div>
+        </div>
+        <!-- Settings Card (Agent Location) -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm text-dark" style="background-color: #e3f8ff; border: none;">
+                <div class="card-body">
+                    <h5 class="card-title">Agent Location</h5>
+                    <p class="card-text">View location and manage the locations of your agents.</p>
+                    <!-- Optional: Add a link or button here for location management -->
+                    <a href="{% url 'agent_location' %}" class="btn btn-primary" style="background-color: #003366; border: none;">View Locations</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Graphs Section -->
+<div class="container my-5">
+    <!-- Row 1 -->
+    <div class="row">
+        <!-- Bar Chart: Agent Registrations -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Monthly Agent Registrations</h5>
+                    <canvas id="barChart" style="max-width: 300px; max-height: 300px; margin: auto;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Chart: Campaign Budgets -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Campaign Budgets</h5>
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="row">
+        <!-- Pie Chart: Insurance Distribution -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Insurance Type Distribution</h5>
+                    <!-- Adjusted the canvas size with inline styling -->
+                    <canvas id="pieChart" style="max-width: 300px; max-height: 300px; margin: auto;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Insurance Section -->
+        <div class="col-12 col-md-6 mb-4">
+            <div class=" p-4 rounded shadow-sm">
+                <div class="text-center mb-3">
+                    <img src="{% static 'images/img8.svg' %}" alt="Health Insurance" class="img-fluid rounded">
+                </div>
+
+            </div>
+        </div>
+        <h3 class="text-warning">HEALTH INSURANCE</h3>
+        <h4 class="text-primary">What is Health Insurance?</h4>
+        <p>
+            Health Insurance is a shield that protects you and your family from financial instability during health emergencies. Against the common misconception that only elderly or people with health risks need to be secured, it is essential for everyone. A good
+            health policy offers peace of mind in times of hospitalization by taking care of your medical bills.
+        </p>
+
+        <p>
+            Uncertainties like COVID-19 have taught us the critical need for health insurance. On the other hand, with the continuous spike in medical inflation, securing a comprehensive health insurance plan has become more important than ever.
+        </p>
+    </div>
+
+
+
+    <!-- Chart.js Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Doughnut Chart: Agent Registrations
+        const barChartData = JSON.parse('{{ bar_chart_data|escapejs }}');
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'doughnut', // Changed to doughnut chart
+            data: {
+                labels: barChartData.labels,
+                datasets: [{
+                    label: 'Registrations',
+                    data: barChartData.data,
+                    backgroundColor: ['#4CAF50', '#FF5722', '#FFC107', '#2196F3'], // Different colors for each segment
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true // Show legend for doughnut chart
+                    },
+                    tooltip: {
+                        enabled: true // Enable tooltip on hover
+                    }
+                }
+            }
+        });
+
+
+
+        // Line Chart: Campaign Budgets
+        const lineChartData = JSON.parse('{{ line_chart_data|escapejs }}');
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: lineChartData.labels,
+                datasets: [{
+                    label: 'Budget ($)',
+                    data: lineChartData.data,
+                    borderColor: '#2196F3',
+                    tension: 0.4,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Pie Chart: Insurance Type Distribution
+        const pieChartData = JSON.parse('{{ pie_chart_data|escapejs }}');
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: pieChartData.labels,
+                datasets: [{
+                    label: 'Insurance Type',
+                    data: pieChartData.data,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    </script>{% endblock %}

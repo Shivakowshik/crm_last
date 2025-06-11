@@ -1,0 +1,313 @@
+{% extends 'admin_nav.html' %} {% load static %} {% block content %}
+<!-- Display any form errors -->
+{% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+<style>
+    body {
+        background-color: #ffffff;
+        font-family: Arial, sans-serif;
+    }
+    
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 20px;
+        background-color: #ffffff;
+        padding: 5%;
+    }
+    
+    .user-card-full {
+        overflow: hidden;
+        border-radius: 5px;
+        box-shadow: 0 1px 7px 0 rgb(0, 27, 109);
+        background: #ffffff;
+        width: 32%;
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .user-profile {
+        background: #003366;
+        border-radius: 5px 0 0 5px;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .user-profile img {
+        border-radius: 50%;
+        margin-bottom: 10px;
+        width: 70px;
+        height: 70px;
+    }
+    
+    .user-profile h6 {
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .card-content {
+        padding: 20px;
+        flex: 2;
+    }
+    
+    .card-content h6 {
+        margin-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
+        font-weight: 1000;
+        padding-bottom: 5px;
+        color: #003771;
+    }
+    
+    .card-content .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        color: #003a78;
+    }
+    
+    .card-content p {
+        margin: 0;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .card-content h6.text-muted {
+        font-weight: 400;
+        color: #222222;
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        gap: 5px;
+    }
+    
+    .action-buttons a,
+    .action-buttons button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 80px;
+        height: 40px;
+        padding: 0;
+        border: none;
+        background-color: #004289;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: #004289;
+        color: #fff;
+    }
+    
+    .btn-primary:hover {
+        background: #0170e7;
+    }
+    
+    .btn-danger {
+        background: #004289;
+        color: #fff;
+    }
+    
+    .btn-danger:hover {
+        background: #0170e7;
+    }
+    
+    .btn-success {
+        background: #004289;
+        color: #fff;
+    }
+    
+    .btn-success:hover {
+        background: #0170e7;
+    }
+    
+    @media (max-width: 768px) {
+        .user-card-full {
+            width: 100%;
+            flex-direction: column;
+            margin: 3%;
+        }
+        .user-profile {
+            border-radius: 5px 5px 0 0;
+            flex-direction: row;
+            justify-content: start;
+            padding: 15px;
+        }
+        .user-profile img {
+            margin-right: 10px;
+            width: 60px;
+            height: 60px;
+        }
+        .card-content {
+            padding: 15px;
+        }
+        .action-buttons {
+            flex-wrap: nowrap;
+        }
+        .action-buttons a {
+            flex: 1;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .user-profile img {
+            width: 50px;
+            height: 50px;
+        }
+        .user-profile h6 {
+            font-size: 14px;
+        }
+        .card-content h6 {
+            font-size: 16px;
+        }
+        .card-content p {
+            font-size: 12px;
+        }
+        .card-content h6.text-muted {
+            font-size: 12px;
+        }
+    }
+    
+    .clients-button-container {
+        margin-top: auto;
+        padding: 10px 20px;
+        text-align: center;
+        background: #f4f4f4;
+        border-top: 1px solid #e0e0e0;
+        border-radius: 0 0 5px 5px;
+    }
+    
+    .clients-button-container a {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #00458f;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+    
+    .clients-button-container a:hover {
+        background-color: #0170e7;
+    }
+</style>
+<h3 style="color: #00458f; text-align: center; margin-top:1%;">
+    <strong>Agent Details</strong>
+</h3>
+<div class="card-container">
+    {% for agent in agents %}
+    <div class="user-card-full">
+        <div class="user-profile">
+            {% if agent.profile_picture %}
+            <img src="{{ agent.profile_picture.url }}" alt="User Profile"> {% else %}
+            <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="Avatar"> {% endif %}
+            <h6 class="agent-name">{{ agent.full_name }}</h6>
+            <p>{{ agent.specialization }} <span>Code: {{ agent.code }}</span></p>
+        </div>
+        <div class="card-content">
+            <h6>Agent Details</h6>
+            <div class="row">
+                <div>
+                    <p>Email</p>
+                    <h6 class="text-muted">{{ agent.email }}</h6>
+                </div>
+                <div>
+                    <p>Phone</p>
+                    <h6 class="text-muted">{{ agent.phone_number }}</h6>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <p>PAN Card Number</p>
+                    <h6 class="text-muted">{{ agent.pan_card }}</h6>
+                </div>
+                <div>
+                    <p>Aadhar Card Number</p>
+                    <h6 class="text-muted">{{ agent.aadhaar_card }}</h6>
+                </div>
+            </div>
+            <div>
+                <p>Address</p>
+                <h6 class="text-muted agent-location">{{ agent.address }}</h6>
+            </div>
+            <div class="action-buttons">
+                <a href="{% url 'edit_agent_admin' agent.id %}" class="btn-primary">
+                    <img src="{% static 'images/edit.jpg' %}" alt="Edit" style="width: 20px; height: 20px;">
+                </a>
+                <a href="{% url 'delete_agent' agent.id %}" class="btn-danger" onclick="return confirm('Are you sure you want to delete this agent?');">
+                    <img src="{% static 'images/delete.png' %}" alt="Delete" style="width: 20px; height: 20px;">
+                </a>
+                <button class="btn-success" onclick="showLocation(this)">
+                    <img src="{% static 'images/loc.png' %}" alt="Track Location" style="width: 20px; height: 20px;">
+                </button>
+            </div>
+            <div class="clients-button-container">
+                <a href="{% url 'clients' agent.id %}">View Clients</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal and Overlay -->
+<div id="location-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 420px; background: #f9f9f9; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); z-index: 1000; overflow: hidden;">
+    <div style="background: #003366; padding: 15px; color: #ffffff; text-align: center; border-bottom: 1px solid #00458f;">
+        <h3 style="margin: 0; font-size: 20px;">Agent Location</h3>
+    </div>
+    <div style="padding: 20px; text-align: center;">
+        <p id="modal-content" style="margin-bottom: 20px; color: #001555; font-size: 16px;">Loading location...</p>
+        <a id="map-link" href="#" target="_blank" style="display: inline-block; margin-bottom: 20px; text-decoration: none; background: #00458f; color: #ffffff; padding: 12px 20px; border-radius: 5px; font-weight: bold; font-size: 14px;">View
+            on Google Maps</a>
+        <button onclick="closeModal()" style="border: none; background: #00458f; color: #ffffff; padding: 10px 20px; border-radius: 5px; font-size: 14px; font-weight: bold;">Close</button>
+    </div>
+</div>
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 999;"></div>
+
+<script>
+    function showLocation(button) {
+        const card = button.closest('.user-card-full');
+        const agentName = card.querySelector('.agent-name').textContent.trim();
+        const location = card.querySelector('.agent-location').textContent.trim();
+
+        const modalContent = document.getElementById("modal-content");
+        modalContent.textContent = `${agentName} is located in ${location}.`;
+
+        const mapLink = document.getElementById("map-link");
+        mapLink.href = `https://www.google.com/maps?q=${encodeURIComponent(location)}`;
+
+        document.getElementById("location-modal").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("location-modal").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+    }
+</script>
+{% endblock %}

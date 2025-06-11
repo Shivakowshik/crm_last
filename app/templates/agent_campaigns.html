@@ -1,0 +1,159 @@
+{% extends 'agent_nav.html' %} {% load static %} {% block content %}{% if messages %}
+<div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    // Automatically remove the messages after 5 seconds
+    setTimeout(() => {
+        const messageContainer = document.getElementById('messages-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000); // 5000 milliseconds = 5 seconds
+</script>
+{% endif %}
+
+
+
+<h3 style="color: #002853; text-align: center; margin-top: 3%;"><strong>Campaign Details</strong></h3>
+
+<div class="crm-container">
+    {% if campaigns.exists %} {% for campaign in campaigns %}
+    <div class="crm-card">
+        <div class="crm-card-image">
+            {% if campaign.banner_image %}
+            <img src="{{ campaign.banner_image.url }}" alt="Banner Image"> {% else %}
+            <img src="https://alkuwaiti.com/wp-content/uploads/2020/05/Image-Placeholder-Dark.png" alt="Default Banner"> {% endif %}
+        </div>
+        <div class="crm-card-details">
+            <p class="crm-card-campaign-name">
+                <span>Campaign Name:</span> <strong>{{ campaign.campaign_name }}</strong>
+            </p>
+            <h2 class="crm-card-agent-name">
+                <span>Agent Name:</span> <strong>{{ campaign.agent.full_name }}</strong>
+            </h2>
+            <p>
+                <span>Duration:</span> <strong>{{ campaign.start_date }} - {{ campaign.end_date }}</strong>
+            </p>
+            <p>
+                <span>Allocated Budget:</span> <strong>₹{{ campaign.budget }}</strong>
+            </p>
+            <p>
+                <span>Target Location:</span> <strong>{{ campaign.location }}</strong>
+            </p>
+            <div class="action-buttons">
+                <form method="post" action="{% url 'mark_campaign_completed' campaign.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-completed">
+                        <img src="https://icon-library.com/images/completed-icon/completed-icon-6.jpg" alt="Completed" style="width: 20px; height: 20px;">
+                        Mark Completed
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %} {% else %}
+    <p style="text-align: center; color: #003366; font-size: 20px; font-weight: bold;">No Details found</p>
+    {% endif %}
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap');
+    .crm-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 20px;
+        background-color: #ffffff;
+    }
+    
+    .crm-card {
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    
+    .crm-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .crm-card-image img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+    
+    .crm-card-details {
+        background-color: #003366;
+        color: #ffffff;
+        padding: 20px;
+        text-align: left;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+    
+    .crm-card-campaign-name,
+    .crm-card-agent-name,
+    p {
+        font-size: 0.9rem;
+    }
+    
+    .crm-card-agent-name {
+        font-size: 1rem;
+        font-weight: 400;
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    
+    .action-buttons a {
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        transition: all 0.3s;
+        background-color: #004289;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .action-buttons a:hover {
+        background-color: #003366;
+        transform: scale(1.05);
+    }
+    
+    @media (max-width: 1024px) {
+        .crm-container {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .crm-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .crm-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

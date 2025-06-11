@@ -1,0 +1,141 @@
+{% extends 'admin_nav.html' %} {% load static %} {% block content %}
+<div class="container mt-5">
+    <h2 style="text-align: center; font-size: 2.5rem; font-weight: bold; color: #003366;">Approve Agents</h2>
+
+    <!-- Display success or error messages -->
+    {% if messages %}
+    <div id="messages-container" style="text-align: center; font-weight: bold; color: #003366;">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" style="display: inline-block; width: 60%; margin: 10px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        // Automatically remove the messages after 5 seconds
+        setTimeout(() => {
+            const messageContainer = document.getElementById('messages-container');
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
+    </script>
+    {% endif %}
+
+    <!-- Pending Agent Details -->
+    {% if pending_agents %}
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-bordered table-hover" style="border-radius: 8px; overflow: hidden;">
+            <thead class="thead-dark" style="background-color: #002c49; color: white;">
+                <tr>
+                    <th>Photo</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Experience</th>
+                    <th>Specialization</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody style="background-color: #ffffff; color: #333333;">
+                {% for agent in pending_agents %}
+                <tr style="transition: background-color 0.3s ease;">
+                    <td>
+                        {% if agent.profile_picture %}
+                        <img src="{{ agent.profile_picture.url }}" alt="User Profile" class="img-fluid rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"> {% else %}
+                        <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="Avatar" class="avatar img-fluid rounded-circle" style="width: 40px; height: 40px; object-fit: cover;"> {% endif %}
+                    </td>
+                    <td>{{ agent.full_name }}</td>
+                    <td>{{ agent.email }}</td>
+                    <td>{{ agent.phone_number }}</td>
+                    <td>{{ agent.experience }}</td>
+                    <td>{{ agent.specialization }}</td>
+                    <td>
+                        <form method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="agent_id" value="{{ agent.id }}">
+                            <button type="submit" name="action" value="approve" class="btn btn-outline-success btn-sm" style="font-size: 14px; padding: 6px 12px; border-radius: 5px;">Approve</button>
+                        </form>
+                        <form method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="agent_id" value="{{ agent.id }}">
+                            <button type="submit" name="action" value="reject" class="btn btn-outline-danger btn-sm" style="font-size: 14px; padding: 6px 12px; border-radius: 5px;">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No pending agents to approve.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+<!-- Custom styles for a more modern design -->
+<style>
+    /* Custom table row hover effect */
+    
+    .table tbody tr:hover {
+        background-color: #f4f6f9 !important;
+    }
+    /* Styling for action buttons */
+    
+    .btn {
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+        border-width: 1px;
+        padding: 6px 12px;
+        border-radius: 5px;
+    }
+    
+    .btn:hover {
+        opacity: 0.85;
+    }
+    /* Styling for the 'Approve' button */
+    
+    .btn-outline-success {
+        border-color: #28a745;
+        color: #28a745;
+    }
+    
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
+    /* Styling for the 'Reject' button */
+    
+    .btn-outline-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    /* Mobile responsive design */
+    
+    @media (max-width: 768px) {
+        .table thead {
+            display: none;
+            /* Hide table headers on small screens */
+        }
+        .table tbody tr {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+        .table tbody tr td {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            border-top: 1px solid #ddd;
+        }
+        .table tbody tr td:first-child {
+            font-weight: 600;
+        }
+    }
+</style>
